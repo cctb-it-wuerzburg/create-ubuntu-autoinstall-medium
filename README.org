@@ -62,7 +62,7 @@ sudo apt-get install whois # package contains the command mkpasswd
 mkpasswd -m sha-512        # generate a sha512 hashed password
 #+END_SRC
 
-The default password for the installation is Umapi7ILef92, but in the
+The default password for the installation is Iimkikn6, but in the
 last step the password is marked as expired and has to be set after
 first login.
 #+BEGIN_SRC sh  :tangle iso-creation.sh
@@ -83,7 +83,7 @@ timezone Europe/Berlin
 #Root password
 rootpw --disabled
 #Initial user
-user genomics --fullname "Genomics administrator" --iscrypted --password $6$rXZRlzL24D$UeXGSOwb6KATwUqfxyCIBs4A1mzSp.tTu/z9WGY9mGC6GVKXNuQNylmLbVTQdk2j5/UsN.nDXCr/wfvxd24qa1
+user cctbadmin --fullname "CCTB administrator" --iscrypted --password $6$fwrID2aO$vUraK58hvUozA72qPaKNj1kNQKC6uTlOUhJFPXGOjqmnZz.Y9jVfjgZmCsoOFnGDfolDdozU2TnmDG5sCR3oW/
 #Reboot after installation
 reboot
 #Use text mode install
@@ -102,7 +102,7 @@ clearpart --all --initlabel
 part swap --size 12000 --asprimary
 part / --fstype ext4 --size 1 --grow --asprimary
 #System authorization infomation
-auth  --useshadow  --enablemd5 #--enablenis --nisdomain bioinformatik --nisserver 132.187.22.129
+auth  --useshadow  --enablemd5
 # Network
 network --bootproto=dhcp --device=eth0
 #Firewall configuration
@@ -113,35 +113,30 @@ skipx
 %packages
 openssh-server
 openssh-client
-#autofs
-#nfs-common
 git
 
 %post
 # move genomics home directory to a separate folder
 # check if the user exists
+USERNAME=cctbadmin
 mkdir -p /home2    2>&1 | tee --append /root/post_install.log
-if id -u genomics >/dev/null 2>&1; then
+if id -u "$USERNAME" >/dev/null 2>&1; then
         echo "user exists" 2>&1 | tee --append /root/post_install.log
-        sudo usermod  -d /home2/genomics  -m  genomics  2>&1 | tee --append /root/post_install.log
+        sudo usermod -d /home2/"$USERNAME" -m "$USERNAME"  2>&1 | tee --append /root/post_install.log
 else
         echo "user does not exist" 2>&1 | tee --append /root/post_install.log
-        useradd --comment "Genomics administrator,,," \
-             --home-dir /home2/genomics \
+        useradd --comment "CCTB administrator,,," \
+             --home-dir /home2/$USERNAME \
              --create-home \
              --shell /bin/bash \
-             --password '$6$rXZRlzL24D$UeXGSOwb6KATwUqfxyCIBs4A1mzSp.tTu/z9WGY9mGC6GVKXNuQNylmLbVTQdk2j5/UsN.nDXCr/wfvxd24qa1' \
+             --password '$6$fwrID2aO$vUraK58hvUozA72qPaKNj1kNQKC6uTlOUhJFPXGOjqmnZz.Y9jVfjgZmCsoOFnGDfolDdozU2TnmDG5sCR3oW/' \
              --groups sudo \
              genomics 2>&1 | tee --append /root/post_install.log
 fi
 
-# set the genomics password to expired to trigger a password reset on
+# set the cctbadmin password to expired to trigger a password reset on
 # first login
-passwd -e genomics 2>&1 | tee --append /root/post_install.log
-
-# prepare NIS/automount
-#date +"# [%Y-%m-%d %H:%M:%S] Added by the kickstart script to add automount capabilities
-#automount: nis files" >> /etc/nsswitch.conf
+passwd -e $USERNAME 2>&1 | tee --append /root/post_install.log
 
 ## Update packages and keys list
 apt-key update 2>&1 | tee --append /root/post_install.log
