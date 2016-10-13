@@ -120,23 +120,23 @@ git
 # check if the user exists
 USERNAME=cctbadmin
 mkdir -p /home2    2>&1 | tee --append /root/post_install.log
-if id -u "$USERNAME" >/dev/null 2>&1; then
+if id -u "\$USERNAME" >/dev/null 2>&1; then
         echo "user exists" 2>&1 | tee --append /root/post_install.log
-        sudo usermod -d /home2/"$USERNAME" -m "$USERNAME"  2>&1 | tee --append /root/post_install.log
+        sudo usermod -d /home2/"\$USERNAME" -m "\$USERNAME"  2>&1 | tee --append /root/post_install.log
 else
         echo "user does not exist" 2>&1 | tee --append /root/post_install.log
         useradd --comment "CCTB administrator,,," \
-             --home-dir /home2/$USERNAME \
+             --home-dir /home2/"\$USERNAME" \
              --create-home \
              --shell /bin/bash \
              --password '$6$fwrID2aO$vUraK58hvUozA72qPaKNj1kNQKC6uTlOUhJFPXGOjqmnZz.Y9jVfjgZmCsoOFnGDfolDdozU2TnmDG5sCR3oW/' \
              --groups sudo \
-             genomics 2>&1 | tee --append /root/post_install.log
+             "$USERNAME" 2>&1 | tee --append /root/post_install.log
 fi
 
 # set the cctbadmin password to expired to trigger a password reset on
 # first login
-passwd -e $USERNAME 2>&1 | tee --append /root/post_install.log
+passwd -e "\$USERNAME" 2>&1 | tee --append /root/post_install.log
 
 ## Update packages and keys list
 apt-key update 2>&1 | tee --append /root/post_install.log
